@@ -1,0 +1,413 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Khaled — Bilingual Tutor Bot</title>
+    <!-- Tailwind (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-50">
+    <div id="root"></div>
+
+    <!-- React + ReactDOM UMD (dev) -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Babel to compile JSX in the browser (dev only) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+      const { useMemo, useState } = React;
+
+      // -------- App code (plain JS) --------
+      const SCENARIOS = [
+        { id: "cafe", name: "Ordering at a café", context: "Morning café in Riyadh. You want a medium drip coffee, black, for here.",
+          keyPhrases: ["Could I get ... please","For here or to go","Do you have almond or oat milk","That is all, thank you","Could you repeat the total","Name is Khaled"],
+          counterpartOpeners: ["Barista: Hi there. What can I get started for you today?","Barista: Small, medium, or large? For here or to go?","Barista: Anything else today?"],
+          help: { en: "Try: 'Could I get a medium drip coffee for here, please?'", ar: "استخدم صيغة طلب مهذبة. عبارة 'Could I get' طبيعية وأكثر لباقة." } },
+
+        { id: "directions", name: "Asking for directions", context: "You are in a mall in Jeddah. You need to find the pharmacy.",
+          keyPhrases: ["Excuse me, could you help me","Where is the pharmacy","Is it on this floor","How long does it take","Thank you for your help"],
+          counterpartOpeners: ["Staff: Hi. What are you looking for?","Staff: It is near the north entrance. Do you see the escalator?","Staff: Go straight, then turn left at the bookstore."],
+          help: { en: "Try: 'Excuse me, could you tell me where the pharmacy is, please?'", ar: "ابدأ بعبارة لطلب المساعدة بأدب ثم اسأل عن المكان بصيغة سؤال صحيحة." } },
+
+        { id: "appointment", name: "Doctor appointment (phone)", context: "You need a checkup next week. Morning is better for you.",
+          keyPhrases: ["Good afternoon. I am calling to book an appointment","Do you have any morning times next week","Could you confirm the date and time","Thank you for your help"],
+          counterpartOpeners: ["Receptionist: Hello. Which day are you looking for?","Receptionist: We have Tuesday at 9 or Thursday at 10.","Receptionist: Can I have your full name and phone number, please?"],
+          help: { en: "Try: 'Good afternoon. I am calling to book an appointment next week. Do you have any morning times?'", ar: "قدّم سبب الاتصال أولاً ثم اطلب التوقيت المطلوب بصيغة مهذّبة." } },
+
+        { id: "customer_service", name: "Delivery customer service", context: "Your package is late. You want to confirm the delivery time and location pin.",
+          keyPhrases: ["I am calling about my order","Could you confirm the delivery time","My location pin is correct, right","Thank you for the update"],
+          counterpartOpeners: ["Agent: Hello. Can I have your order number, please?","Agent: We expect delivery today between 3 and 5.","Agent: I can send a confirmation to your phone."],
+          help: { en: "Try: 'Could you please confirm the delivery time and my location pin?'", ar: "استخدم سؤالاً مباشراً لتأكيد الوقت والموقع ثم انتظر التأكيد." } },
+
+        { id: "restaurant_booking", name: "Restaurant booking", context: "You want a table for four tomorrow at 8 pm.",
+          keyPhrases: ["I would like to book a table","For four people","Tomorrow at 8 pm","Could you confirm the reservation"],
+          counterpartOpeners: ["Host: Hello. What date and time","Host: Name and phone number, please","Host: Any special requests"],
+          help: { en: "Try: 'I would like to book a table for four tomorrow at 8 pm, please.'", ar: "استخدم would like للحجز بصيغة مهذّبة وحدد العدد والوقت." } },
+
+        { id: "hotel_checkin", name: "Hotel check-in + late checkout", context: "You have a reservation and want late checkout at 2 pm.",
+          keyPhrases: ["I have a reservation","Could I get late checkout","Is there a fee","Thank you"],
+          counterpartOpeners: ["Front desk: Welcome. May I have your ID","Front desk: Check-out is at noon","Front desk: We can offer 2 pm for a fee"],
+          help: { en: "Try: 'Could I get late checkout at 2 pm, please. Is there a fee'", ar: "اطلب التأخير بصيغة مهذّبة ثم اسأل عن الرسوم." } },
+
+        { id: "taxi_pickup", name: "Taxi or ride-hailing pickup", context: "You want pickup at a landmark and need the arrival time.",
+          keyPhrases: ["I am at","Could you confirm your car","How many minutes away","Thank you"],
+          counterpartOpeners: ["Driver: I am by the main gate","Driver: What is your exact location","Driver: I will arrive in 5 minutes"],
+          help: { en: "Try: 'I am at Gate 3 near the pharmacy. How many minutes away are you'", ar: "اذكر الموقع بدقة ثم اسأل عن الوقت المتوقع للوصول." } },
+
+        { id: "airport_checkin", name: "Airport check-in and baggage", context: "You need to check one bag and ask about the gate.",
+          keyPhrases: ["I am checking one bag","Could you confirm my gate","What time is boarding"],
+          counterpartOpeners: ["Agent: Passport and ticket, please","Agent: Your gate is A12","Agent: Boarding starts at 7:30"],
+          help: { en: "Try: 'I am checking one bag. Could you confirm my gate and boarding time'", ar: "اذكر عدد الحقائب ثم اطلب تأكيد البوابة ووقت الصعود." } },
+
+        { id: "bank_account", name: "Bank — new account questions", context: "You want to ask about account types and fees.",
+          keyPhrases: ["I would like information on account types","Are there any monthly fees","What documents do I need"],
+          counterpartOpeners: ["Banker: Hello. How can I help","Banker: We have basic and premium","Banker: You need ID and proof of address"],
+          help: { en: "Try: 'Are there any monthly fees for the basic account'", ar: "اسأل بشكل مباشر عن الرسوم والوثائق المطلوبة." } },
+
+        { id: "telecom_support", name: "Telecom support call", context: "Your mobile data is slow. You want to troubleshoot.",
+          keyPhrases: ["My mobile data is slow","Could you check my line","What steps should I try"],
+          counterpartOpeners: ["Agent: Can I verify your number","Agent: I will refresh your line","Agent: Please restart your phone"],
+          help: { en: "Try: 'Could you check my line and suggest steps to improve speed'", ar: "اطلب فحص الخط ثم خطوات عملية لتحسين السرعة." } },
+
+        { id: "pharmacy_purchase", name: "Pharmacy purchase", context: "You need pain relief tablets and dosage advice.",
+          keyPhrases: ["Do you have","How many should I take","After food or before"],
+          counterpartOpeners: ["Pharmacist: What symptoms do you have","Pharmacist: Take one every 8 hours","Pharmacist: Drink water and rest"],
+          help: { en: "Try: 'Do you have pain relief tablets. How many should I take'", ar: "اسأل عن الدواء ثم عن الجرعة وطريقة الاستخدام." } },
+
+        { id: "supermarket_checkout", name: "Supermarket checkout", context: "You want to pay and ask for a bag.",
+          keyPhrases: ["I would like a bag, please","Card or cash","Could you split the payment"],
+          counterpartOpeners: ["Cashier: Do you need a bag","Cashier: Tap your card","Cashier: Here is your receipt"],
+          help: { en: "Try: 'I would like a bag, please. Can I pay by card'", ar: "اطلب الحقيبة بأدب ثم حدد طريقة الدفع." } },
+
+        { id: "return_item", name: "Return or exchange an item", context: "The shirt does not fit. You want a refund or exchange.",
+          keyPhrases: ["I would like to return this","It did not fit","Could I get a refund or exchange"],
+          counterpartOpeners: ["Staff: Do you have the receipt","Staff: Refund to the original card","Staff: We can exchange sizes"],
+          help: { en: "Try: 'I would like to return this. It did not fit. Could I exchange it'", ar: "اذكر السبب باختصار ثم اطلب الاسترجاع أو الاستبدال." } },
+
+        { id: "post_office", name: "Post office — ship a package", context: "You need to ship a small box and ask about delivery time.",
+          keyPhrases: ["How much is shipping","How many days","Tracking number"],
+          counterpartOpeners: ["Clerk: Domestic or international","Clerk: Standard or express","Clerk: Here is your tracking number"],
+          help: { en: "Try: 'How much is shipping to Dammam and how many days'", ar: "حدد الوجهة ثم اسأل عن السعر والمدة." } },
+
+        { id: "rent_car", name: "Car rental", context: "You want a compact car for two days with insurance.",
+          keyPhrases: ["I would like to rent a car","For two days","With full insurance","What is the total"],
+          counterpartOpeners: ["Agent: Do you have a license","Agent: We have compact and SUV","Agent: The total is..."],
+          help: { en: "Try: 'I would like a compact car for two days with full insurance, please'", ar: "حدد الفئة والمدة والتأمين لعرض سعر دقيق." } },
+
+        { id: "gym_membership", name: "Gym membership inquiry", context: "You want to ask about monthly plans and class times.",
+          keyPhrases: ["Do you have a monthly plan","What are the class times","Is there a trial day"],
+          counterpartOpeners: ["Staff: We have monthly and yearly","Staff: Classes are in the evening","Staff: You can try one day for free"],
+          help: { en: "Try: 'Do you have a monthly plan and evening classes'", ar: "اسأل عن الخطة الزمنية والحصص التجريبية." } },
+
+        { id: "job_intro", name: "Job interview intro", context: "You need a short self-intro for a first round call.",
+          keyPhrases: ["Thanks for the opportunity","I work in","My strengths are","I am interested in this role because"],
+          counterpartOpeners: ["Interviewer: Tell me about yourself","Interviewer: Why this role","Interviewer: Do you have any questions"],
+          help: { en: "Try: 'Thanks for the opportunity. I work in..., and I am interested in this role because...'", ar: "ابدأ بالشكر ثم قدم ملخصاً قصيراً عن الخبرة والدافع." } },
+
+        { id: "office_small_talk", name: "Office small talk", context: "You meet a colleague from another team.",
+          keyPhrases: ["How is your day going","I just joined the team","Nice to meet you","Could you help me with"],
+          counterpartOpeners: ["Colleague: Hi, which team are you in","Colleague: Welcome aboard","Colleague: Let me know if you need anything"],
+          help: { en: "Try: 'Hi, nice to meet you. I just joined the team. How is your day going'", ar: "استخدم تحية بسيطة ثم سؤال قصير لفتح الحديث." } },
+
+        { id: "landlord_maintenance", name: "Landlord maintenance request", context: "Your AC is not cooling. You need a repair visit.",
+          keyPhrases: ["My AC is not cooling","Could you send a technician","Today or tomorrow","Thank you for your help"],
+          counterpartOpeners: ["Landlord: What is the issue","Landlord: We can send someone tomorrow","Landlord: Please share your building and flat number"],
+          help: { en: "Try: 'My AC is not cooling. Could you send a technician tomorrow'", ar: "اشرح المشكلة بجملة بسيطة ثم اطلب موعد الزيارة." } },
+
+        { id: "emergency_call", name: "Emergency or urgent help", context: "You need urgent assistance in a public place.",
+          keyPhrases: ["I need help","Please call an ambulance","There is an emergency","The location is"],
+          counterpartOpeners: ["Operator: What is your emergency","Operator: What is your location","Operator: Help is on the way"],
+          help: { en: "Say: 'There is an emergency. Please send help to [location]'", ar: "اذكر كلمة طوارئ بوضوح ثم قدّم الموقع بدقة." } },
+      ];
+
+      function scoreTurn(text) {
+        const words = text.trim().split(/\s+/).filter(Boolean).length;
+        const fluency = Math.min(5, Math.max(1, Math.floor(words / 5)));
+        let accuracy = 5;
+        if (/\bi want\b/i.test(text)) accuracy -= 1;
+        if (!/[\.?!]$/.test(text.trim())) accuracy -= 1;
+        if (/\bno have\b/i.test(text)) accuracy -= 1;
+        accuracy = Math.max(1, accuracy);
+        let vocab = 3;
+        if (/please|could I|get|to go|for here|confirm|delivery|appointment|pharmacy|reservation|gate|bag|refund/i.test(text)) vocab += 1;
+        if (/thank you|thanks/i.test(text)) vocab += 1;
+        vocab = Math.min(5, vocab);
+        let interaction = 3;
+        if (/\?$/.test(text.trim())) interaction += 1;
+        if (/sorry|could you repeat|do you mean/i.test(text)) interaction += 1;
+        interaction = Math.min(5, interaction);
+        const total = Math.round(((fluency + accuracy + vocab + interaction) / 20) * 100);
+        return { fluency, accuracy, vocab, interaction, total };
+      }
+
+      function analyzeErrors(userText) {
+        const items = [];
+        if (/\bi want\b/i.test(userText)) {
+          items.push({
+            correction: "I would like a medium coffee, please.",
+            why_ar: "استخدم 'would like' للطلب المهذّب بدل 'I want'.",
+            better: "Could I get a medium coffee to go, please",
+          });
+        }
+        if (!/[\.?!]$/.test(userText.trim())) {
+          items.push({
+            correction: "Add a period or question mark at the end.",
+            why_ar: "إنهاء الجملة بعلامة ترقيم يساعد على وضوح المعنى والإيقاع.",
+            better: "Could you repeat the total, please?",
+          });
+        }
+        if (/\bno have\b/i.test(userText)) {
+          items.push({
+            correction: "We do not have almond milk today.",
+            why_ar: "استخدم صيغة النفي الصحيحة 'do not have' بدل 'no have'.",
+            better: "Sorry, we do not have almond milk today.",
+          });
+        }
+        return items.slice(0, 3);
+      }
+
+      function App() {
+        const [scenarioId, setScenarioId] = useState("cafe");
+        const scenario = useMemo(() => SCENARIOS.find(s => s.id === scenarioId), [scenarioId]);
+
+        const [chat, setChat] = useState([scenario.counterpartOpeners[0]]);
+        const [input, setInput] = useState("");
+        const [feedback, setFeedback] = useState(null);
+        const [log, setLog] = useState([]);
+        const [microGoals, setMicroGoals] = useState("A2 request forms and confirmations, B1 clarifying questions");
+        const [level, setLevel] = useState("A2 to B1");
+
+        function resetScenario(id) {
+          setScenarioId(id);
+          const sc = SCENARIOS.find(s => s.id === id);
+          setChat([sc.counterpartOpeners[0]]);
+          setFeedback(null);
+          setInput("");
+        }
+
+        function tutorReply() {
+          const isCounter = (line) => (
+            line.startsWith("Barista:") || line.startsWith("Staff:") || line.startsWith("Receptionist:") ||
+            line.startsWith("Agent:") || line.startsWith("Host:") || line.startsWith("Front desk:") ||
+            line.startsWith("Driver:") || line.startsWith("Clerk:") || line.startsWith("Interviewer:") ||
+            line.startsWith("Colleague:") || line.startsWith("Landlord:") || line.startsWith("Operator:")
+          );
+          const count = chat.filter(isCounter).length;
+          const idx = Math.min(count, scenario.counterpartOpeners.length - 1);
+          return scenario.counterpartOpeners[idx];
+        }
+
+        function sendUserTurn() {
+          const text = input.trim();
+          if (!text) return;
+          if (text === "[Help]") { requestHelp(); return; }
+          const newChat = [...chat, `Khaled: ${text}`];
+          const reply = tutorReply();
+          setChat([...newChat, reply]);
+          setInput("");
+        }
+
+        function requestHelp() {
+          setChat(prev => [...prev, `Tutor hint: ${scenario.help.en}`, `توضيح: ${scenario.help.ar}`]);
+        }
+
+        function endPractice() {
+          const userTurns = chat.filter(line => line.startsWith("Khaled:"));
+          const last = userTurns[userTurns.length - 1] || "";
+          const scores = scoreTurn(last.replace(/^Khaled:\s*/, ""));
+          const errors = analyzeErrors(last);
+          const strengths = [];
+          if (/please/i.test(last)) strengths.push("Polite request used");
+          if (/for here|to go|confirm|delivery|appointment|pharmacy|reservation|gate|refund|bag/i.test(last)) strengths.push("Relevant vocabulary used");
+          if (last.trim().length > 20) strengths.push("Good sentence length for clarity");
+          if (strengths.length === 0) strengths.push("Clear and understandable message");
+          setFeedback({ strengths, errors, scores });
+        }
+
+        function addToLog() {
+          if (!feedback) return;
+          const today = new Date().toISOString().slice(0, 10);
+          const row = {
+            date: today,
+            scenario: scenario.name,
+            targets: microGoals,
+            strengths: feedback.strengths.join("; "),
+            errors: feedback.errors.map(e => e.correction).join("; "),
+            homework: "Practice 5 polite requests using 'Could I get' and 'I would like'.",
+          };
+          setLog(prev => [row, ...prev]);
+        }
+
+        return (
+          <div className="min-h-screen bg-gray-50 text-gray-900 p-6">
+            <div className="max-w-5xl mx-auto space-y-6">
+              <header className="flex flex-col gap-2">
+                <h1 className="text-2xl font-bold">Bilingual Tutor Bot for Khaled</h1>
+                <p className="text-sm">Level target: {level}. Micro goals: {microGoals}. Scenario Loop: Scenario, Practice in English only, then Feedback.</p>
+              </header>
+
+              <section className="grid md:grid-cols-3 gap-4">
+                <div className="md:col-span-2 bg-white rounded-2xl shadow p-4 space-y-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <label className="text-sm font-semibold">Scenario</label>
+                    <select className="border rounded px-2 py-1" value={scenarioId} onChange={e => resetScenario(e.target.value)}>
+                      {SCENARIOS.map(s => (<option key={s.id} value={s.id}>{s.name}</option>))}
+                    </select>
+                    <label className="text-sm font-semibold">Level</label>
+                    <input className="border rounded px-2 py-1 w-40" value={level} onChange={e => setLevel(e.target.value)} />
+                  </div>
+
+                  <div className="bg-gray-100 rounded-xl p-3">
+                    <p className="text-sm"><span className="font-semibold">Context:</span> {scenario.context}</p>
+                  </div>
+
+                  <div className="h-72 overflow-y-auto bg-white border rounded-xl p-3 space-y-2">
+                    {chat.map((line, i) => (
+                      <div key={i} className={
+                        line.startsWith("Khaled:") ? "text-right" :
+                        line.startsWith("Tutor hint:") || line.startsWith("توضيح:") ? "text-center text-sm text-indigo-700" : "text-left"
+                      }>
+                        <span className={
+                          line.startsWith("Khaled:") ? "inline-block bg-blue-50 rounded-xl px-3 py-2" :
+                          line.startsWith("Tutor hint:") || line.startsWith("توضيح:") ? "inline-block bg-indigo-50 rounded-xl px-3 py-2" :
+                          "inline-block bg-gray-50 rounded-xl px-3 py-2"
+                        }>
+                          {line}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex gap-2 items-start">
+                    <textarea
+                      className="flex-1 border rounded-xl p-2 h-20"
+                      placeholder="Type your line in English. Use [Help] only if you are stuck."
+                      value={input}
+                      onChange={e => setInput(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          sendUserTurn();
+                        }
+                      }}
+                    />
+                    <div className="flex flex-col gap-2 w-36">
+                      <button className="bg-blue-600 text-white rounded-xl px-3 py-2" onClick={sendUserTurn}>Send</button>
+                      <button className="bg-indigo-600 text-white rounded-xl px-3 py-2" onClick={requestHelp}>[Help]</button>
+                      <button className="bg-emerald-600 text-white rounded-xl px-3 py-2" onClick={endPractice}>End practice</button>
+                    </div>
+                  </div>
+                </div>
+
+                <aside className="bg-white rounded-2xl shadow p-4 space-y-3">
+                  <h2 className="font-semibold">Key phrases</h2>
+                  <ul className="list-disc pl-5 text-sm space-y-1">
+                    {scenario.keyPhrases.map((p, i) => (<li key={i}>{p}</li>))}
+                  </ul>
+                  <div className="pt-2 border-t">
+                    <h3 className="font-semibold text-sm">Micro goals</h3>
+                    <input className="border rounded w-full px-2 py-1 text-sm" value={microGoals} onChange={e => setMicroGoals(e.target.value)} />
+                  </div>
+                </aside>
+              </section>
+
+              <section className="grid md:grid-cols-3 gap-4">
+                <div className="md:col-span-2 bg-white rounded-2xl shadow p-4 space-y-3">
+                  <h2 className="font-semibold">Feedback</h2>
+                  {!feedback && <p className="text-sm text-gray-600">End the practice to generate feedback with bilingual explanations and a suggested improvement.</p>}
+                  {feedback && (
+                    <div className="space-y-3">
+                      <div className="bg-green-50 rounded-xl p-3">
+                        <p className="font-semibold">What you did well</p>
+                        <ul className="list-disc pl-5 text-sm">
+                          {feedback.strengths.map((s, i) => (<li key={i}>{s}</li>))}
+                        </ul>
+                      </div>
+                      <div className="bg-rose-50 rounded-xl p-3">
+                        <p className="font-semibold">Corrections and reasons</p>
+                        {feedback.errors.length === 0 && <p className="text-sm">No priority errors detected. Great job.</p>}
+                        <ul className="list-disc pl-5 text-sm space-y-2">
+                          {feedback.errors.map((e, i) => (
+                            <li key={i}>
+                              <div><span className="font-semibold">Correction:</span> {e.correction}</div>
+                              <div><span className="font-semibold">Why:</span> {e.why_ar}</div>
+                              <div><span className="font-semibold">Better way:</span> {e.better}</div>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div className="bg-blue-50 rounded-xl p-3 grid md:grid-cols-5 gap-2 text-sm">
+                        <div className="md:col-span-1"><span className="font-semibold">Fluency</span><div>{feedback.scores.fluency}/5</div></div>
+                        <div className="md:col-span-1"><span className="font-semibold">Accuracy</span><div>{feedback.scores.accuracy}/5</div></div>
+                        <div className="md:col-span-1"><span className="font-semibold">Vocabulary</span><div>{feedback.scores.vocab}/5</div></div>
+                        <div className="md:col-span-1"><span className="font-semibold">Interaction</span><div>{feedback.scores.interaction}/5</div></div>
+                        <div className="md:col-span-1"><span className="font-semibold">Overall</span><div>{feedback.scores.total}%</div></div>
+                      </div>
+                      <div className="flex gap-2">
+                        <button className="bg-gray-900 text-white rounded-xl px-3 py-2" onClick={addToLog}>Add to progress log</button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <aside className="bg-white rounded-2xl shadow p-4 space-y-3">
+                  <h2 className="font-semibold">Pronunciation micro-drill</h2>
+                  <ul className="list-disc pl-5 text-sm space-y-1">
+                    <li>p vs b: park vs bark</li>
+                    <li>v vs f: very vs ferry</li>
+                    <li>th sounds: think, this</li>
+                    <li>Short vs long vowels: ship vs sheep</li>
+                    <li>Stress: reCORD vs REcord</li>
+                  </ul>
+                </aside>
+              </section>
+
+              <section className="bg-white rounded-2xl shadow p-4 space-y-3">
+                <h2 className="font-semibold">Progress log</h2>
+                {log.length === 0 && <p className="text-sm text-gray-600">No entries yet. Add feedback to the log after a session.</p>}
+                {log.length > 0 && (
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full text-sm">
+                      <thead>
+                        <tr className="bg-gray-100">
+                          <th className="text-left p-2">Date</th>
+                          <th className="text-left p-2">Scenario</th>
+                          <th className="text-left p-2">CEFR targets</th>
+                          <th className="text-left p-2">Strengths</th>
+                          <th className="text-left p-2">Priority errors</th>
+                          <th className="text-left p-2">Homework</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {log.map((r, i) => (
+                          <tr key={i} className="border-t">
+                            <td className="p-2">{r.date}</td>
+                            <td className="p-2">{r.scenario}</td>
+                            <td className="p-2">{r.targets}</td>
+                            <td className="p-2">{r.strengths}</td>
+                            <td className="p-2">{r.errors}</td>
+                            <td className="p-2">{r.homework}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </section>
+
+              <footer className="text-xs text-gray-600">
+                <p>Bilingual Tutor Bot for Khaled. Scenario Loop with bilingual feedback. Practice in English. Type [Help] if stuck.</p>
+              </footer>
+            </div>
+          </div>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<App />);
+      // -------- end App code --------
+    </script>
+  </body>
+</html>
