@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Khaled — Bilingual Tutor Bot</title>
+    <title>Bilingual Tutor Bot</title>
     <!-- Tailwind (CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
@@ -22,7 +22,7 @@
       // -------- App code (plain JS) --------
       const SCENARIOS = [
         { id: "cafe", name: "Ordering at a café", context: "Morning café in Riyadh. You want a medium drip coffee, black, for here.",
-          keyPhrases: ["Could I get ... please","For here or to go","Do you have almond or oat milk","That is all, thank you","Could you repeat the total","Name is Khaled"],
+          keyPhrases: ["Could I get ... please","For here or to go","Do you have almond or oat milk","That is all, thank you","Could you repeat the total","Name is You"],
           counterpartOpeners: ["Barista: Hi there. What can I get started for you today?","Barista: Small, medium, or large? For here or to go?","Barista: Anything else today?"],
           help: { en: "Try: 'Could I get a medium drip coffee for here, please?'", ar: "استخدم صيغة طلب مهذبة. عبارة 'Could I get' طبيعية وأكثر لباقة." } },
 
@@ -203,7 +203,7 @@
           const text = input.trim();
           if (!text) return;
           if (text === "[Help]") { requestHelp(); return; }
-          const newChat = [...chat, `Khaled: ${text}`];
+          const newChat = [...chat, `You: ${text}`];
           const reply = tutorReply();
           setChat([...newChat, reply]);
           setInput("");
@@ -214,9 +214,9 @@
         }
 
         function endPractice() {
-          const userTurns = chat.filter(line => line.startsWith("Khaled:"));
+          const userTurns = chat.filter(line => line.startsWith("You:"));
           const last = userTurns[userTurns.length - 1] || "";
-          const scores = scoreTurn(last.replace(/^Khaled:\s*/, ""));
+          const scores = scoreTurn(last.replace(/^You:\s*/, ""));
           const errors = analyzeErrors(last);
           const strengths = [];
           if (/please/i.test(last)) strengths.push("Polite request used");
@@ -244,7 +244,7 @@
           <div className="min-h-screen bg-gray-50 text-gray-900 p-6">
             <div className="max-w-5xl mx-auto space-y-6">
               <header className="flex flex-col gap-2">
-                <h1 className="text-2xl font-bold">Bilingual Tutor Bot for Khaled</h1>
+                <h1 className="text-2xl font-bold">Bilingual Tutor Bot</h1>
                 <p className="text-sm">Level target: {level}. Micro goals: {microGoals}. Scenario Loop: Scenario, Practice in English only, then Feedback.</p>
               </header>
 
@@ -266,11 +266,11 @@
                   <div className="h-72 overflow-y-auto bg-white border rounded-xl p-3 space-y-2">
                     {chat.map((line, i) => (
                       <div key={i} className={
-                        line.startsWith("Khaled:") ? "text-right" :
+                        line.startsWith("You:") ? "text-right" :
                         line.startsWith("Tutor hint:") || line.startsWith("توضيح:") ? "text-center text-sm text-indigo-700" : "text-left"
                       }>
                         <span className={
-                          line.startsWith("Khaled:") ? "inline-block bg-blue-50 rounded-xl px-3 py-2" :
+                          line.startsWith("You:") ? "inline-block bg-blue-50 rounded-xl px-3 py-2" :
                           line.startsWith("Tutor hint:") || line.startsWith("توضيح:") ? "inline-block bg-indigo-50 rounded-xl px-3 py-2" :
                           "inline-block bg-gray-50 rounded-xl px-3 py-2"
                         }>
@@ -398,7 +398,7 @@
               </section>
 
               <footer className="text-xs text-gray-600">
-                <p>Bilingual Tutor Bot for Khaled. Scenario Loop with bilingual feedback. Practice in English. Type [Help] if stuck.</p>
+                <p>Bilingual Tutor Bot. Scenario Loop with bilingual feedback. Practice in English. Type [Help] if stuck.</p>
               </footer>
             </div>
           </div>
