@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Oracle Fusion: Configuration vs Extensibility</title>
+  <style>
+    :root{ --bg:#f6f7f8; --card:#ffffff; --ink:#0f172a; --muted:#475569; --line:#e5e7eb; }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu,Cantarell,"Noto Sans","Helvetica Neue",Arial,"Apple Color Emoji","Segoe UI Emoji"}
+    .wrap{max-width:1100px;margin:40px auto;padding:0 20px}
+    h1{font-size:28px;margin:0 0 6px}
+    h2{font-size:20px;margin:0 0 12px}
+    p.lead{color:var(--muted);margin:0 0 20px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,.05);padding:18px;margin:16px 0}
+    .grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:12px}
+    .col-4{grid-column:span 4}
+    .col-6{grid-column:span 6}
+    .col-12{grid-column:span 12}
+    .chip{display:inline-block;font-size:12px;padding:3px 8px;border:1px solid var(--line);border-radius:999px;background:#fafafa;color:#111827;margin-bottom:6px}
+    .box{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff;height:100%}
+    .decision{background:linear-gradient(135deg,#dcfce7,#f0fdf4);border-color:#86efac}
+    .decision h3{color:#065f46}
+    .side{background:linear-gradient(135deg,#e0f2fe,#f0f9ff);border-color:#7dd3fc}
+    .danger{background:linear-gradient(135deg,#fee2e2,#fff1f2);border-color:#fca5a5}
+    .muted{color:var(--muted)}
+    .table{width:100%;border-collapse:collapse}
+    .table th,.table td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+    .table th{background:#fafafa}
+    .legend{font-size:12px;color:var(--muted)}
+    .legend dl{display:grid;grid-template-columns: 1fr 3fr;gap:8px 16px}
+    .legend dt{font-weight:600;color:#111827}
+    .legend dd{margin:0}
+    @media(max-width:900px){.col-4,.col-6{grid-column:span 12}.legend dl{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Oracle Fusion Cloud: Configuration First, Extensibility Second</h1>
+      <p class="lead">High-level stance and governance visual for replacing on-prem customization patterns.</p>
+    </header>
+
+    <section class="card">
+      <h2>Decision Flow</h2>
+      <p class="muted">Use this flow to triage any requested change. Keep SaaS core clean and push variability to configuration or the edge.</p>
+      <div class="box" style="overflow:hidden">
+        <div class="grid" style="padding:12px">
+          <div class="col-4">
+            <div class="box">
+              <span class="chip">INTAKE</span>
+              <h3>Start</h3>
+              <p class="muted">Describe the need in user language. Identify module, actors, inputs, outputs.</p>
+            </div>
+          </div>
+          <div class="col-1" style="grid-column:span 1;display:flex;align-items:center;justify-content:center">
+            <svg width="60" height="36" viewBox="0 0 60 36"><path d="M2 18 H46" stroke="#9ca3af" stroke-width="2"/><path d="M38 10 L46 18 L38 26" fill="none" stroke="#9ca3af" stroke-width="2"/></svg>
+          </div>
+          <div class="col-6">
+            <div class="box">
+              <span class="chip">CONFIGURATION</span>
+              <h3>Can delivered configuration meet it?</h3>
+              <p class="muted">Try FSM setup, roles and policies, flexfields, OTBI or BI Publisher, BPM approvals, Redwood branding.</p>
+            </div>
+          </div>
+
+          <div class="col-12"></div>
+
+          <div class="col-4">
+            <div class="box decision">
+              <h3>Yes → Stop</h3>
+              <p>Document setup. Add to configuration registry. Validate performance and security.</p>
+            </div>
+          </div>
+          <div class="col-1" style="grid-column:span 1;display:flex;align-items:center;justify-content:center">
+            <svg width="30" height="60" viewBox="0 0 30 60"><path d="M15 2 V44" stroke="#9ca3af" stroke-width="2"/><path d="M7 36 L15 44 L23 36" fill="none" stroke="#9ca3af" stroke-width="2"/></svg>
+          </div>
+          <div class="col-6">
+            <div class="box">
+              <span class="chip">IN-APP EXTENSIBILITY</span>
+              <h3>Need light UI or logic only?</h3>
+              <p class="muted">Fields, conditional UI, approvals, simple validations using sandboxes, Page or App Composer, flexfields, rules.</p>
+            </div>
+          </div>
+
+          <div class="col-12"></div>
+
+          <div class="col-4">
+            <div class="box decision">
+              <h3>Yes → Proceed in-app</h3>
+              <p>Sandbox, promote with setup tools. Add telemetry and performance checks.</p>
+            </div>
+          </div>
+          <div class="col-1" style="grid-column:span 1;display:flex;align-items:center;justify-content:center">
+            <svg width="30" height="60" viewBox="0 0 30 60"><path d="M15 2 V44" stroke="#9ca3af" stroke-width="2"/><path d="M7 36 L15 44 L23 36" fill="none" stroke="#9ca3af" stroke-width="2"/></svg>
+          </div>
+          <div class="col-6">
+            <div class="box">
+              <span class="chip">SIDE-BY-SIDE (PaaS)</span>
+              <h3>Complex logic, new process, or heavy UI?</h3>
+              <p class="muted">Build outside on PaaS. Integrate with REST, events, and OIC. Keep SaaS the system of record where appropriate.</p>
+            </div>
+          </div>
+
+          <div class="col-12"></div>
+
+          <div class="col-4">
+            <div class="box side">
+              <h3>Yes → Build outside</h3>
+              <p>Use Visual Builder, OIC, Functions, DB services. Version, test, monitor. Avoid tight coupling.</p>
+            </div>
+          </div>
+          <div class="col-1" style="grid-column:span 1;display:flex;align-items:center;justify-content:center">
+            <svg width="30" height="60" viewBox="0 0 30 60"><path d="M15 2 V44" stroke="#9ca3af" stroke-width="2"/><path d="M7 36 L15 44 L23 36" fill="none" stroke="#9ca3af" stroke-width="2"/></svg>
+          </div>
+          <div class="col-6">
+            <div class="box danger">
+              <h3>Changing SaaS core?</h3>
+              <p>Altering delivered objects or patching internals is prohibited. Redesign the requirement or move to PaaS.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Comparison Matrix</h2>
+      <div style="overflow-x:auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Path</th>
+              <th>What it is</th>
+              <th>Pros</th>
+              <th>Cons</th>
+              <th>Typical uses</th>
+              <th>Risk</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Configuration only</strong></td>
+              <td>Setup, roles and policies, flexfields, approvals, OTBI or BI Publisher, Redwood branding</td>
+              <td>Fast, upgrade safe, lowest TCO, supported</td>
+              <td>Limited for edge cases</td>
+              <td>Standard policies, small field adds, reports</td>
+              <td>Low</td>
+            </tr>
+            <tr>
+              <td><strong>In-app extensibility</strong></td>
+              <td>Page or App Composer, sandboxes, flexfields, declarative logic, approval rules</td>
+              <td>Upgrade safe, native UX, central governance</td>
+              <td>Can clutter UX, performance needs discipline, not for heavy logic</td>
+              <td>Extra attributes, conditional UI, nuanced approvals</td>
+              <td>Low to Medium</td>
+            </tr>
+            <tr>
+              <td><strong>Side by side (PaaS)</strong></td>
+              <td>OIC, REST APIs, events, Visual Builder, OCI services</td>
+              <td>Max flexibility, scalable, isolates change, DevOps friendly</td>
+              <td>Higher cost and skill, integration lifecycle to manage</td>
+              <td>New microflows, portals, orchestrations, advanced validations</td>
+              <td>Medium</td>
+            </tr>
+            <tr>
+              <td><strong>Core code changes</strong></td>
+              <td>Altering SaaS internals or delivered objects</td>
+              <td>None in SaaS context</td>
+              <td>Breaks support and upgrades; prohibited</td>
+              <td>Not applicable</td>
+              <td>Prohibited</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Operating Guardrails</h2>
+      <ul>
+        <li>Intake triage classifies request as configuration, in-app extensibility, or PaaS.</li>
+        <li>Upgrade safety: sandbox, metadata based, documented promotion path.</li>
+        <li>Performance baseline for each change with rollback plan.</li>
+        <li>API first integrations using REST, events, and OIC patterns.</li>
+        <li>Lifecycle discipline with versioning, environment promotion, observability.</li>
+      </ul>
+      <div class="legend">
+        <h3>Legend and Acronyms</h3>
+        <dl>
+          <dt>SaaS</dt><dd>Software as a Service. Cloud software delivered and maintained by the vendor; customers configure but do not modify core code.</dd>
+          <dt>FSM</dt><dd>Functional Setup Manager. Fusion’s guided configuration area for functional setup tasks.</dd>
+          <dt>OTBI</dt><dd>Oracle Transactional Business Intelligence. Real-time, subject-area reporting over live transactional data.</dd>
+          <dt>BI Publisher</dt><dd>Oracle BI Publisher. Pixel-perfect reporting tool used for documents, labels, and formatted outputs.</dd>
+          <dt>BPM</dt><dd>Business Process Management. Approval rules and workflows engine used to model and execute approvals.</dd>
+          <dt>UX</dt><dd>User Experience. The overall experience of using the product’s interface and interactions.</dd>
+          <dt>UI</dt><dd>User Interface. The visual layer of screens, pages, and components a user interacts with.</dd>
+          <dt>PaaS</dt><dd>Platform as a Service. Cloud platform to build applications and services alongside Fusion without altering the SaaS core.</dd>
+          <dt>OIC</dt><dd>Oracle Integration Cloud. Managed integration service for connecting Fusion with other systems using adapters, flows, and mappings.</dd>
+          <dt>REST</dt><dd>Representational State Transfer APIs. Web service style used by Fusion for CRUD operations and integrations.</dd>
+          <dt>OCI</dt><dd>Oracle Cloud Infrastructure. Oracle’s IaaS platform hosting services like Functions, databases, and networking.</dd>
+          <dt>Visual Builder</dt><dd>Oracle Visual Builder. Low-code tool to build web and mobile apps that integrate with Fusion data and services.</dd>
+          <dt>DB</dt><dd>Database. Persistent data storage service; here referring to OCI database services.</dd>
+          <dt>TCO</dt><dd>Total Cost of Ownership. Combined cost to build, operate, support, and upgrade a solution over time.</dd>
+          <dt>System of record</dt><dd>The authoritative data source for a given business entity or process.</dd>
+          <dt>Telemetry</dt><dd>Operational measurements like performance and usage that help monitor extensions.</dd>
+          <dt>Redwood</dt><dd>Oracle’s design system and visual theme for Fusion user interfaces.</dd>
+        </dl>
+      </div>
+    </section>
+  </div>
+</body>
+</html>
