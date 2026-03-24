@@ -1,463 +1,1225 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A Guide to 20 Modern Excel Formulas</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f0f4f8;
-        }
-        .formula-card {
-            background-color: white;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            transition: all 0.3s ease-in-out;
-        }
-        table {
-            width: 100%;
-            margin-top: 1rem;
-            margin-bottom: 1rem;
-            border-collapse: collapse;
-        }
-        th, td {
-            text-align: left;
-            padding: 0.5rem;
-            border: 1px solid #e2e8f0;
-        }
-        th {
-            background-color: #e2e8f0;
-            font-weight: 600;
-        }
-        th.excel-header {
-            background-color: #f8fafc;
-            text-align: center;
-            font-weight: bold;
-            color: #64748b;
-        }
-        code {
-            background-color: #e9d8a6;
-            color: #bb3e03;
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.25rem;
-            font-family: monospace;
-            font-size: 0.9rem;
-            word-break: break-all;
-        }
-        .result-section {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px dashed #cbd5e1;
-        }
-        .filter-btn {
-            transition: all 0.2s ease;
-        }
-        .filter-btn.active {
-            background-color: #005f73;
-            color: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .copy-btn {
-            background-color: #e0e7ff;
-            color: #4338ca;
-            border: none;
-            padding: 0.25rem 0.5rem;
-            font-size: 0.75rem;
-            border-radius: 0.25rem;
-            cursor: pointer;
-            margin-left: 0.5rem;
-            font-weight: 500;
-            transition: background-color 0.2s;
-        }
-        .copy-btn:hover {
-            background-color: #c7d2fe;
-        }
-        .walkthrough-toggle {
-            cursor: pointer;
-            color: #0a9396;
-            font-weight: 500;
-            margin-top: 0.5rem;
-            display: inline-block;
-        }
-        .walkthrough-content {
-            display: none;
-            margin-top: 0.5rem;
-        }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="theme-color" content="#0f1117"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Hours Tracker"/>
+<title>Weekly Hours Tracker</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3350;
+    --text: #e8eaf6;
+    --text-muted: #7b82a8;
+    --blue: #4a90e2;
+    --blue-dim: #1e3a5f;
+    --orange: #f5a623;
+    --orange-dim: #5a3c0a;
+    --red: #e25454;
+    --red-dim: #5a1a1a;
+    --green: #4caf7d;
+    --progress-bg: #1e2235;
+    --radius: 10px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 16px 64px;
+  }
+
+  header {
+    width: 100%;
+    max-width: 720px;
+    margin-bottom: 28px;
+  }
+
+  header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--text);
+  }
+
+  header p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    width: 100%;
+    max-width: 720px;
+    margin-bottom: 16px;
+  }
+
+  .card-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+
+  /* Summary row */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .stat-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+
+  .stat-box .label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+
+  .stat-box .value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .stat-box .value.total { color: var(--blue); }
+  .stat-box .value.remaining { color: var(--orange); }
+  .stat-box .value.goal { color: var(--text-muted); }
+  .stat-box .value.overtime { color: var(--red); }
+
+  .overtime-box {
+    display: none;
+    background: var(--red-dim);
+    border: 1px solid var(--red);
+    border-radius: 8px;
+    padding: 14px 16px;
+    text-align: center;
+    margin-top: 12px;
+  }
+
+  .overtime-box.visible { display: block; }
+
+  .overtime-box .label {
+    font-size: 0.72rem;
+    color: #e25454aa;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+
+  .overtime-box .value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--red);
+  }
+
+  /* Save button */
+  .save-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    padding: 9px 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    letter-spacing: 0.03em;
+  }
+
+  .save-btn:hover { background: #357abd; }
+  .save-btn:active { transform: scale(0.97); }
+
+  .save-btn.saved {
+    background: var(--green);
+  }
+
+  .save-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  .save-status {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  .save-status.confirmed {
+    color: var(--green);
+  }
+
+  /* Progress bar */
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .progress-track {
+    background: var(--progress-bg);
+    border-radius: 999px;
+    height: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #2d6bc4, #4a90e2);
+    transition: width 0.4s ease;
+    max-width: 100%;
+  }
+
+  .progress-fill.complete {
+    background: linear-gradient(90deg, #2e7d52, #4caf7d);
+  }
+
+  /* Table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead th {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--surface2); }
+
+  tbody td {
+    padding: 12px 12px;
+    font-size: 0.9rem;
+    vertical-align: middle;
+  }
+
+  .day-name {
+    font-weight: 600;
+    color: var(--text);
+    width: 110px;
+  }
+
+  .day-name.today {
+    color: var(--blue);
+  }
+
+  .row-date {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-weight: 400;
+    margin-top: 2px;
+  }
+
+  .today-badge {
+    display: inline-block;
+    font-size: 0.6rem;
+    background: var(--blue-dim);
+    color: var(--blue);
+    border-radius: 4px;
+    padding: 1px 5px;
+    margin-left: 6px;
+    vertical-align: middle;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  .hours-input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 0.95rem;
+    padding: 6px 10px;
+    width: 90px;
+    text-align: center;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+
+  .hours-input:focus {
+    border-color: var(--blue);
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+    letter-spacing: 0.04em;
+    min-width: 100px;
+    justify-content: center;
+  }
+
+  .status-badge.on-track {
+    background: var(--blue-dim);
+    color: var(--blue);
+  }
+
+  .status-badge.at-risk {
+    background: var(--orange-dim);
+    color: var(--orange);
+  }
+
+  .status-badge.over {
+    background: var(--red-dim);
+    color: var(--red);
+  }
+
+  .status-badge.empty {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px dashed var(--border);
+  }
+
+  .clear-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .clear-btn:hover {
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  /* UX Checklist */
+  .checklist {
+    list-style: none;
+  }
+
+  .checklist li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.2s;
+  }
+
+  .checklist li:last-child { border-bottom: none; }
+
+  .checklist li.checked {
+    color: var(--green);
+    text-decoration: line-through;
+    text-decoration-color: #4caf7d55;
+  }
+
+  .check-box {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .checklist li.checked .check-box {
+    background: var(--green);
+    border-color: var(--green);
+  }
+
+  .check-icon { display: none; font-size: 0.7rem; color: #fff; }
+  .checklist li.checked .check-icon { display: block; }
+
+  .checklist-progress {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+
+  .checklist-progress span {
+    color: var(--green);
+    font-weight: 600;
+  }
+
+  /* Week reset notice */
+  .reset-notice {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 8px;
+  }
+
+  .reset-notice strong { color: var(--orange); }
+
+  /* Weekly Totals Scrollable List */
+  .wt-scroll {
+    max-height: 280px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-right: 4px;
+  }
+
+  .wt-scroll::-webkit-scrollbar { width: 5px; }
+  .wt-scroll::-webkit-scrollbar-track { background: var(--surface2); border-radius: 999px; }
+  .wt-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+
+  .wt-entry {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+
+  .wt-entry.current-week {
+    border-color: var(--blue);
+  }
+
+  .wt-entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+  }
+
+  .wt-entry-label {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  .wt-entry-label .current-tag {
+    display: inline-block;
+    font-size: 0.6rem;
+    background: var(--blue-dim);
+    color: var(--blue);
+    border-radius: 4px;
+    padding: 1px 5px;
+    margin-left: 6px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    vertical-align: middle;
+  }
+
+  .wt-entry-total {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--blue);
+  }
+
+  .wt-entry-total.over { color: var(--red); }
+  .wt-entry-total.done { color: var(--green); }
+
+  .wt-bar-wrap {
+    background: var(--progress-bg);
+    border-radius: 999px;
+    height: 7px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    margin-bottom: 5px;
+  }
+
+  .wt-bar {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #2d6bc4, #4a90e2);
+    transition: width 0.4s ease;
+    max-width: 100%;
+  }
+
+  .wt-bar.done { background: linear-gradient(90deg, #2e7d52, #4caf7d); }
+  .wt-bar.over { background: linear-gradient(90deg, #7a1a1a, #e25454); }
+
+  .wt-entry-sub {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-align: right;
+  }
+
+  .wt-empty {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 16px 0;
+  }
+
+  /* Install Banner */
+  .install-banner {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--surface);
+    border: 1px solid var(--blue);
+    border-radius: 12px;
+    padding: 14px 20px;
+    width: calc(100% - 32px);
+    max-width: 720px;
+    box-shadow: 0 4px 24px #0008;
+    z-index: 999;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .install-banner.visible { display: flex; }
+
+  .install-banner-text {
+    flex: 1;
+    font-size: 0.85rem;
+    color: var(--text);
+  }
+
+  .install-banner-text strong { color: var(--blue); }
+
+  .install-btn {
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    padding: 8px 16px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .install-dismiss {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+  }
+
+  /* Time Calculator */
+  .calc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .calc-field label {
+    display: block;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .calc-field input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 0.95rem;
+    padding: 8px 10px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .calc-field input:focus { border-color: var(--blue); }
+
+  .calc-extra {
+    margin-bottom: 14px;
+  }
+
+  .calc-result {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 14px;
+  }
+
+  .calc-result-label {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .calc-result-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--blue);
+  }
+
+  .calc-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .calc-apply-btn {
+    flex: 1;
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    padding: 9px 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .calc-apply-btn:hover { background: #357abd; }
+
+  .calc-reset-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    border-radius: 7px;
+    padding: 9px 14px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .calc-reset-btn:hover { border-color: var(--red); color: var(--red); }
+
+  .calc-note {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 8px;
+    text-align: center;
+  }
+
+  /* Footer */
+  footer {
+    margin-top: 8px;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    text-align: center;
+    max-width: 720px;
+    width: 100%;
+  }
+
+  @media (max-width: 480px) {
+    .summary-grid { grid-template-columns: 1fr 1fr; }
+    .stat-box:last-child { grid-column: span 2; }
+  }
+</style>
 </head>
-<body class="text-gray-800">
+<body>
 
-    <div class="container mx-auto p-4 md:p-8">
-        
-        <header class="text-center my-12">
-            <h1 class="text-5xl md:text-6xl font-extrabold text-[#005f73]">A Practical Guide to 20 Modern Excel Formulas</h1>
-            <p class="mt-4 text-xl text-gray-600 max-w-3xl mx-auto">Master Excel's powerful new functions with step-by-step examples and clear data walkthroughs.</p>
-        </header>
+<header>
+  <h1>Weekly Hours Tracker</h1>
+  <p id="week-label">Loading week...</p>
+</header>
 
-        <div id="controls" class="mb-8 p-4 bg-white rounded-lg shadow-md">
-            <div class="mb-4">
-                <input type="text" id="search-bar" placeholder="Search for a formula..." class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#005f73] focus:border-transparent transition">
-            </div>
-            <div id="category-filters" class="flex flex-wrap gap-2">
-                <button class="filter-btn active px-4 py-2 bg-gray-200 text-gray-700 rounded-full font-semibold" data-category="all">All</button>
-                <button class="filter-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-full font-semibold" data-category="Lookup & Reference">Lookup & Reference</button>
-                <button class="filter-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-full font-semibold" data-category="Data Shaping & Restructuring">Data Shaping & Restructuring</button>
-                <button class="filter-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-full font-semibold" data-category="Text Manipulation">Text Manipulation</button>
-                <button class="filter-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-full font-semibold" data-category="Aggregation & Generation">Aggregation & Generation</button>
-            </div>
-        </div>
-
-        <main id="formula-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8">
-
-            <div class="formula-card" data-category="Lookup & Reference">
-                <h3 class="text-2xl font-bold text-[#005f73]">1. XLOOKUP</h3>
-                <p class="text-gray-600 mt-2">Searches a range for a match and returns the corresponding item from a second range.</p>
-                <table><thead><tr><th class="excel-header"></th><th class="excel-header">A</th><th class="excel-header">B</th></tr><tr><th class="excel-header">1</th><th>ID</th><th>Employee</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>102</td><td>Jane</td></tr><tr><th class="excel-header">3</th><td>105</td><td>Mike</td></tr><tr><th class="excel-header">4</th><td>108</td><td>Sue</td></tr></tbody></table>
-                <p><strong>Example:</strong><code>=XLOOKUP(105, A2:A4, B2:B4)</code><button class="copy-btn">Copy</button></p>
-                <span class="walkthrough-toggle">Show Walkthrough</span>
-                <div class="walkthrough-content"><p class="mt-2"><strong>Walkthrough:</strong> Excel searches for the ID 105 in the ID column (A2:A4) and returns the value from the same position in the Employee column (B2:B4).</p></div>
-                <div class="result-section">
-                    <p><strong>Result in cell C2:</strong></p>
-                    <table><thead><tr><th class="excel-header"></th><th class="excel-header">C</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>Mike</td></tr></tbody></table>
-                </div>
-            </div>
-            
-            <div class="formula-card" data-category="Lookup & Reference">
-                <h3 class="text-2xl font-bold text-[#005f73]">2. FILTER</h3>
-                <p class="text-gray-600 mt-2">Filters a range of data based on criteria, returning all matching records.</p>
-                <table><thead><tr><th class="excel-header"></th><th class="excel-header">A</th><th class="excel-header">B</th></tr><tr><th class="excel-header">1</th><th>Region</th><th>Sales</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>North</td><td>2500</td></tr><tr><th class="excel-header">3</th><td>South</td><td>1800</td></tr><tr><th class="excel-header">4</th><td>North</td><td>3200</td></tr></tbody></table>
-                <p><strong>Example:</strong><code>=FILTER(A2:B4, A2:A4="North")</code><button class="copy-btn">Copy</button></p>
-                <span class="walkthrough-toggle">Show Walkthrough</span>
-                <div class="walkthrough-content"><p class="mt-2"><strong>Walkthrough:</strong> The formula checks the Region column for "North" and spills a new table containing only the two matching rows and their sales data.</p></div>
-                <div class="result-section">
-                    <p><strong>Spilled Result:</strong></p>
-                    <table><thead><tr><th class="excel-header"></th><th class="excel-header">C</th><th class="excel-header">D</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>North</td><td>2500</td></tr><tr><th class="excel-header">3</th><td>North</td><td>3200</td></tr></tbody></table>
-                </div>
-            </div>
-            
-            <div class="formula-card" data-category="Lookup & Reference">
-                <h3 class="text-2xl font-bold text-[#005f73]">3. SORT</h3>
-                <p class="text-gray-600 mt-2">Sorts the contents of a range or array.</p>
-                <table><thead><tr><th class="excel-header"></th><th class="excel-header">A</th><th class="excel-header">B</th></tr><tr><th class="excel-header">1</th><th>Product</th><th>Price</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>Banana</td><td>$1.20</td></tr><tr><th class="excel-header">3</th><td>Apple</td><td>$1.50</td></tr><tr><th class="excel-header">4</th><td>Cherry</td><td>$2.00</td></tr></tbody></table>
-                <p><strong>Example:</strong><code>=SORT(A2:B4, 2, -1)</code><button class="copy-btn">Copy</button></p>
-                <span class="walkthrough-toggle">Show Walkthrough</span>
-                <div class="walkthrough-content"><p class="mt-2"><strong>Walkthrough:</strong> It sorts the table based on the 2nd column (Price) in descending order (-1), returning a new, sorted table.</p></div>
-                <div class="result-section">
-                    <p><strong>Spilled Result (Sorted by Price Desc):</strong></p>
-                    <table><thead><tr><th class="excel-header"></th><th class="excel-header">C</th><th class="excel-header">D</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>Cherry</td><td>$2.00</td></tr><tr><th class="excel-header">3</th><td>Apple</td><td>$1.50</td></tr><tr><th class="excel-header">4</th><td>Banana</td><td>$1.20</td></tr></tbody></table>
-                </div>
-            </div>
-            
-            <div class="formula-card" data-category="Lookup & Reference">
-                <h3 class="text-2xl font-bold text-[#005f73]">4. UNIQUE</h3>
-                <p class="text-gray-600 mt-2">Returns a list of unique values from a range.</p>
-                <table><thead><tr><th class="excel-header"></th><th class="excel-header">A</th></tr><tr><th class="excel-header">1</th><th>Customer</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>Ann</td></tr><tr><th class="excel-header">3</th><td>Joe</td></tr><tr><th class="excel-header">4</th><td>Ann</td></tr><tr><th class="excel-header">5</th><td>Sue</td></tr></tbody></table>
-                <p><strong>Example:</strong><code>=UNIQUE(A2:A5)</code><button class="copy-btn">Copy</button></p>
-                <span class="walkthrough-toggle">Show Walkthrough</span>
-                <div class="walkthrough-content"><p class="mt-2"><strong>Walkthrough:</strong> Excel scans the customer list, removes the duplicate "Ann", and returns a spilled list of unique names.</p></div>
-                <div class="result-section">
-                    <p><strong>Spilled Result:</strong></p>
-                    <table><thead><tr><th class="excel-header"></th><th class="excel-header">B</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>Ann</td></tr><tr><th class="excel-header">3</th><td>Joe</td></tr><tr><th class="excel-header">4</th><td>Sue</td></tr></tbody></table>
-                </div>
-            </div>
-            
-            <div class="formula-card" data-category="Aggregation & Generation">
-                <h3 class="text-2xl font-bold text-[#005f73]">5. SEQUENCE</h3>
-                <p class="text-gray-600 mt-2">Generates a dynamic array of sequential numbers.</p>
-                <table><thead><tr><th class="excel-header"></th><th class="excel-header">A</th></tr><tr><th class="excel-header">1</th><th>(Formula Cell)</th></tr></thead><tbody><tr><th class="excel-header">2</th><td></td></tr></tbody></table>
-                <p><strong>Example:</strong><code>=SEQUENCE(4, 3, 1, 5)</code><button class="copy-btn">Copy</button></p>
-                <span class="walkthrough-toggle">Show Walkthrough</span>
-                <div class="walkthrough-content"><p class="mt-2"><strong>Walkthrough:</strong> This generates a 4-row by 3-column array of numbers, starting at 1 and incrementing by 5 for each value.</p></div>
-                <div class="result-section">
-                    <p><strong>Spilled Result:</strong></p>
-                    <table><thead><tr><th class="excel-header"></th><th class="excel-header">A</th><th class="excel-header">B</th><th class="excel-header">C</th></tr></thead><tbody><tr><th class="excel-header">1</th><td>1</td><td>6</td><td>11</td></tr><tr><th class="excel-header">2</th><td>16</td><td>21</td><td>26</td></tr><tr><th class="excel-header">3</th><td>31</td><td>36</td><td>41</td></tr><tr><th class="excel-header">4</th><td>46</td><td>51</td><td>56</td></tr></tbody></table>
-                </div>
-            </div>
-            
-            <div class="formula-card" data-category="Aggregation & Generation">
-                <h3 class="text-2xl font-bold text-[#005f73]">6. RANDARRAY</h3>
-                <p class="text-gray-600 mt-2">Generates an array of random numbers.</p>
-                <table><thead><tr><th class="excel-header"></th><th class="excel-header">A</th></tr><tr><th class="excel-header">1</th><th>(Formula Cell)</th></tr></thead><tbody><tr><th class="excel-header">2</th><td></td></tr></tbody></table>
-                <p><strong>Example:</strong><code>=RANDARRAY(3, 2, 1, 100, TRUE)</code><button class="copy-btn">Copy</button></p>
-                <span class="walkthrough-toggle">Show Walkthrough</span>
-                <div class="walkthrough-content"><p class="mt-2"><strong>Walkthrough:</strong> The formula creates a 3-row by 2-column array filled with random integers between 1 and 100.</p></div>
-                <div class="result-section">
-                    <p><strong>Example Spilled Result:</strong></p>
-                    <table><thead><tr><th class="excel-header"></th><th class="excel-header">A</th><th class="excel-header">B</th></tr></thead><tbody><tr><th class="excel-header">1</th><td>84</td><td>22</td></tr><tr><th class="excel-header">2</th><td>5</td><td>99</td></tr><tr><th class="excel-header">3</th><td>47</td><td>73</td></tr></tbody></table>
-                </div>
-            </div>
-            
-            <div class="formula-card" data-category="Aggregation & Generation">
-                <h3 class="text-2xl font-bold text-[#005f73]">7. LET</h3>
-                <p class="text-gray-600 mt-2">Assigns names to calculation results to improve readability.</p>
-                <table><thead><tr><th class="excel-header"></th><th class="excel-header">A</th></tr><tr><th class="excel-header">1</th><th>Value</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>1000</td></tr></tbody></table>
-                <p><strong>Example:</strong><code>=LET(rate, 0.05, A2*rate)</code><button class="copy-btn">Copy</button></p>
-                <span class="walkthrough-toggle">Show Walkthrough</span>
-                <div class="walkthrough-content"><p class="mt-2"><strong>Walkthrough:</strong> It assigns the name "rate" to the value 0.05, then multiplies the value in A2 by "rate".</p></div>
-                <div class="result-section">
-                    <p><strong>Result in cell B2:</strong></p>
-                    <table><thead><tr><th class="excel-header"></th><th class="excel-header">B</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>50</td></tr></tbody></table>
-                </div>
-            </div>
-            
-            <div class="formula-card" data-category="Aggregation & Generation">
-                <h3 class="text-2xl font-bold text-[#005f73]">8. LAMBDA</h3>
-                <p class="text-gray-600 mt-2">Assembles custom, reusable functions without VBA.</p>
-                <table><thead><tr><th class="excel-header"></th><th class="excel-header">A</th></tr><tr><th class="excel-header">1</th><th>Value</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>25</td></tr></tbody></table>
-                <p><strong>Example:</strong><code>=LAMBDA(x, x*5)(A2)</code><button class="copy-btn">Copy</button></p>
-                <span class="walkthrough-toggle">Show Walkthrough</span>
-                <div class="walkthrough-content"><p class="mt-2"><strong>Walkthrough:</strong> It defines a function that takes a variable `x` and multiplies it by 5. It then immediately calls this function with A2 as the input.</p></div>
-                <div class="result-section">
-                    <p><strong>Result in cell B2:</strong></p>
-                    <table><thead><tr><th class="excel-header"></th><th class="excel-header">B</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>125</td></tr></tbody></table>
-                </div>
-            </div>
-            
-            <div class="formula-card" data-category="Text Manipulation">
-                <h3 class="text-2xl font-bold text-[#005f73]">9. TEXTSPLIT</h3>
-                <p class="text-gray-600 mt-2">Splits a text string into multiple cells using a delimiter.</p>
-                <table><thead><tr><th class="excel-header"></th><th class="excel-header">A</th></tr><tr><th class="excel-header">1</th><th>Value</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>SKU-123-ABC</td></tr></tbody></table>
-                <p><strong>Example:</strong><code>=TEXTSPLIT(A2, "-")</code><button class="copy-btn">Copy</button></p>
-                <span class="walkthrough-toggle">Show Walkthrough</span>
-                <div class="walkthrough-content"><p class="mt-2"><strong>Walkthrough:</strong> It takes the string in A2 and breaks it into a horizontal array wherever a "-" appears.</p></div>
-                <div class="result-section">
-                    <p><strong>Spilled Result:</strong></p>
-                    <table><thead><tr><th class="excel-header"></th><th class="excel-header">B</th><th class="excel-header">C</th><th class="excel-header">D</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>SKU</td><td>123</td><td>ABC</td></tr></tbody></table>
-                </div>
-            </div>
-            
-            <div class="formula-card" data-category="Text Manipulation">
-                <h3 class="text-2xl font-bold text-[#005f73]">10. TEXTJOIN</h3>
-                <p class="text-gray-600 mt-2">Combines text from multiple ranges with a delimiter.</p>
-                <table><thead><tr><th class="excel-header"></th><th class="excel-header">A</th><th class="excel-header">B</th><th class="excel-header">C</th></tr><tr><th class="excel-header">1</th><th>First</th><th>Middle</th><th>Last</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>John</td><td>F</td><td>Smith</td></tr></tbody></table>
-                <p><strong>Example:</strong><code>=TEXTJOIN(" ", TRUE, A2:C2)</code><button class="copy-btn">Copy</button></p>
-                <span class="walkthrough-toggle">Show Walkthrough</span>
-                <div class="walkthrough-content"><p class="mt-2"><strong>Walkthrough:</strong> It joins the text from A2, B2, and C2, inserting a space between each.</p></div>
-                <div class="result-section">
-                    <p><strong>Result in cell D2:</strong></p>
-                    <table><thead><tr><th class="excel-header"></th><th class="excel-header">D</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>John F Smith</td></tr></tbody></table>
-                </div>
-            </div>
-            
-            <div class="formula-card" data-category="Data Shaping & Restructuring">
-                <h3 class="text-2xl font-bold text-[#005f73]">11. VSTACK</h3>
-                <p class="text-gray-600 mt-2">Appends arrays vertically into a single array.</p>
-                <table><thead><tr><th class="excel-header"></th><th class="excel-header">A</th><th class="excel-header">B</th></tr><tr><th class="excel-header">1</th><th>Q1 Sales</th><th>Q2 Sales</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>Ann</td><td>Sue</td></tr><tr><th class="excel-header">3</th><td>Joe</td><td>Mike</td></tr></tbody></table>
-                <p><strong>Example:</strong><code>=VSTACK(A2:A3, B2:B3)</code><button class="copy-btn">Copy</button></p>
-                <span class="walkthrough-toggle">Show Walkthrough</span>
-                <div class="walkthrough-content"><p class="mt-2"><strong>Walkthrough:</strong> It takes the list from Q1 Sales and stacks the list from Q2 Sales directly below it, creating a single spilled column.</p></div>
-                <div class="result-section">
-                    <p><strong>Spilled Result:</strong></p>
-                    <table><thead><tr><th class="excel-header"></th><th class="excel-header">C</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>Ann</td></tr><tr><th class="excel-header">3</th><td>Joe</td></tr><tr><th class="excel-header">4</th><td>Sue</td></tr><tr><th class="excel-header">5</th><td>Mike</td></tr></tbody></table>
-                </div>
-            </div>
-            
-            <div class="formula-card" data-category="Data Shaping & Restructuring">
-                <h3 class="text-2xl font-bold text-[#005f73]">12. HSTACK</h3>
-                <p class="text-gray-600 mt-2">Appends arrays horizontally into a single array, ideal for combining non-adjacent columns.</p>
-                <table><thead><tr><th class="excel-header"></th><th class="excel-header">A</th><th class="excel-header">B</th><th class="excel-header">C</th></tr><tr><th class="excel-header">1</th><th>Names</th><th>(empty)</th><th>IDs</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>Ann</td><td></td><td>101</td></tr><tr><th class="excel-header">3</th><td>Joe</td><td></td><td>102</td></tr></tbody></table>
-                <p><strong>Example:</strong><code>=HSTACK(A2:A3, C2:C3)</code><button class="copy-btn">Copy</button></p>
-                <span class="walkthrough-toggle">Show Walkthrough</span>
-                <div class="walkthrough-content"><p class="mt-2"><strong>Walkthrough:</strong> It takes the non-adjacent Names column (A2:A3) and IDs column (C2:C3) and combines them side-by-side into a new array.</p></div>
-                <div class="result-section">
-                    <p><strong>Spilled Result:</strong></p>
-                    <table><thead><tr><th class="excel-header"></th><th class="excel-header">D</th><th class="excel-header">E</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>Ann</td><td>101</td></tr><tr><th class="excel-header">3</th><td>Joe</td><td>102</td></tr></tbody></table>
-                </div>
-            </div>
-            
-            <div class="formula-card" data-category="Data Shaping & Restructuring">
-                <h3 class="text-2xl font-bold text-[#005f73]">13. TAKE</h3>
-                <p class="text-gray-600 mt-2">Returns a specified number of rows/columns from an array.</p>
-                <table><thead><tr><th class="excel-header"></th><th class="excel-header">A</th><th class="excel-header">B</th></tr><tr><th class="excel-header">1</th><th>Rank</th><th>Player</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>1</td><td>A</td></tr><tr><th class="excel-header">3</th><td>2</td><td>B</td></tr><tr><th class="excel-header">4</th><td>3</td><td>C</td></tr><tr><th class="excel-header">5</th><td>4</td><td>D</td></tr></tbody></table>
-                <p><strong>Example:</strong><code>=TAKE(A2:B5, 2)</code><button class="copy-btn">Copy</button></p>
-                <span class="walkthrough-toggle">Show Walkthrough</span>
-                <div class="walkthrough-content"><p class="mt-2"><strong>Walkthrough:</strong> From the given range, it takes only the first 2 rows and returns them as a new 2x2 array.</p></div>
-                <div class="result-section">
-                    <p><strong>Spilled Result (First 2 Rows):</strong></p>
-                    <table><thead><tr><th class="excel-header"></th><th class="excel-header">C</th><th class="excel-header">D</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>1</td><td>A</td></tr><tr><th class="excel-header">3</th><td>2</td><td>B</td></tr></tbody></table>
-                </div>
-            </div>
-            
-            <div class="formula-card" data-category="Data Shaping & Restructuring">
-                <h3 class="text-2xl font-bold text-[#005f73]">14. DROP</h3>
-                <p class="text-gray-600 mt-2">Removes a specified number of rows/columns from an array.</p>
-                <table><thead><tr><th class="excel-header"></th><th class="excel-header">A</th><th class="excel-header">B</th></tr><tr><th class="excel-header">1</th><th>Rank</th><th>Player</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>1</td><td>A</td></tr><tr><th class="excel-header">3</th><td>2</td><td>B</td></tr><tr><th class="excel-header">4</th><td>3</td><td>C</td></tr><tr><th class="excel-header">5</th><td>4</td><td>D</td></tr></tbody></table>
-                <p><strong>Example:</strong><code>=DROP(A1:B5, 1)</code><button class="copy-btn">Copy</button></p>
-                <span class="walkthrough-toggle">Show Walkthrough</span>
-                <div class="walkthrough-content"><p class="mt-2"><strong>Walkthrough:</strong> It takes the full range (including the header) and removes the first row, returning a new array with only the data rows.</p></div>
-                <div class="result-section">
-                    <p><strong>Spilled Result (First row dropped):</strong></p>
-                    <table><thead><tr><th class="excel-header"></th><th class="excel-header">C</th><th class="excel-header">D</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>1</td><td>A</td></tr><tr><th class="excel-header">3</th><td>2</td><td>B</td></tr><tr><th class="excel-header">4</th><td>3</td><td>C</td></tr><tr><th class="excel-header">5</th><td>4</td><td>D</td></tr></tbody></table>
-                </div>
-            </div>
-            
-            <div class="formula-card" data-category="Data Shaping & Restructuring">
-                <h3 class="text-2xl font-bold text-[#005f73]">15. CHOOSECOLS</h3>
-                <p class="text-gray-600 mt-2">Returns specified columns from an array.</p>
-                <table><thead><tr><th class="excel-header"></th><th class="excel-header">A</th><th class="excel-header">B</th><th class="excel-header">C</th></tr><tr><th class="excel-header">1</th><th>ID</th><th>Dept</th><th>Salary</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>101</td><td>HR</td><td>75k</td></tr><tr><th class="excel-header">3</th><td>102</td><td>IT</td><td>90k</td></tr></tbody></table>
-                <p><strong>Example:</strong><code>=CHOOSECOLS(A1:C3, 1, 3)</code><button class="copy-btn">Copy</button></p>
-                <span class="walkthrough-toggle">Show Walkthrough</span>
-                <div class="walkthrough-content"><p class="mt-2"><strong>Walkthrough:</strong> From the source table, it extracts the 1st (ID) and 3rd (Salary) columns to assemble a new, spilled array.</p></div>
-                <div class="result-section">
-                    <p><strong>Spilled Result (Cols 1 & 3):</strong></p>
-                    <table><thead><tr><th class="excel-header"></th><th class="excel-header">D</th><th class="excel-header">E</th></tr></thead><tbody><tr><th class="excel-header">1</th><th>ID</th><th>Salary</th></tr><tr><th class="excel-header">2</th><td>101</td><td>75k</td></tr><tr><th class="excel-header">3</th><td>102</td><td>90k</td></tr></tbody></table>
-                </div>
-            </div>
-            
-            <div class="formula-card" data-category="Data Shaping & Restructuring">
-                <h3 class="text-2xl font-bold text-[#005f73]">16. CHOOSEROWS</h3>
-                <p class="text-gray-600 mt-2">Returns specified rows from an array.</p>
-                <table><thead><tr><th class="excel-header"></th><th class="excel-header">A</th><th class="excel-header">B</th></tr><tr><th class="excel-header">1</th><th>Rank</th><th>Player</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>1</td><td>A</td></tr><tr><th class="excel-header">3</th><td>2</td><td>B</td></tr><tr><th class="excel-header">4</th><td>3</td><td>C</td></tr></tbody></table>
-                <p><strong>Example:</strong><code>=CHOOSEROWS(A1:B4, 1, 4)</code><button class="copy-btn">Copy</button></p>
-                <span class="walkthrough-toggle">Show Walkthrough</span>
-                <div class="walkthrough-content"><p class="mt-2"><strong>Walkthrough:</strong> From the source table, it extracts the 1st (Header) and 4th (Rank 3) rows to assemble a new table.</p></div>
-                <div class="result-section">
-                    <p><strong>Spilled Result (Rows 1 & 4):</strong></p>
-                    <table><thead><tr><th class="excel-header"></th><th class="excel-header">C</th><th class="excel-header">D</th></tr></thead><tbody><tr><th class="excel-header">1</th><th>Rank</th><th>Player</th></tr><tr><th class="excel-header">2</th><td>3</td><td>C</td></tr></tbody></table>
-                </div>
-            </div>
-            
-            <div class="formula-card" data-category="Data Shaping & Restructuring">
-                <h3 class="text-2xl font-bold text-[#005f73]">17. WRAPROWS</h3>
-                <p class="text-gray-600 mt-2">Wraps a vector into a 2D array by row.</p>
-                <table><thead><tr><th class="excel-header"></th><th class="excel-header">A</th></tr><tr><th class="excel-header">1</th><th>Months</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>Jan</td></tr><tr><th class="excel-header">3</th><td>Feb</td></tr><tr><th class="excel-header">4</th><td>Mar</td></tr><tr><th class="excel-header">5</th><td>Apr</td></tr></tbody></table>
-                <p><strong>Example:</strong><code>=WRAPROWS(A2:A5, 2)</code><button class="copy-btn">Copy</button></p>
-                <span class="walkthrough-toggle">Show Walkthrough</span>
-                <div class="walkthrough-content"><p class="mt-2"><strong>Walkthrough:</strong> It takes the single column of months and rearranges it into a 2D array with a width of 2, creating a 2x2 grid.</p></div>
-                <div class="result-section">
-                    <p><strong>Spilled Result (Wrap count 2):</strong></p>
-                     <table><thead><tr><th class="excel-header"></th><th class="excel-header">B</th><th class="excel-header">C</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>Jan</td><td>Feb</td></tr><tr><th class="excel-header">3</th><td>Mar</td><td>Apr</td></tr></tbody></table>
-                </div>
-            </div>
-            
-            <div class="formula-card" data-category="Data Shaping & Restructuring">
-                <h3 class="text-2xl font-bold text-[#005f73]">18. WRAPCOLS</h3>
-                <p class="text-gray-600 mt-2">Wraps a vector into a 2D array by column.</p>
-                <table><thead><tr><th class="excel-header"></th><th class="excel-header">A</th><th class="excel-header">B</th><th class="excel-header">C</th><th class="excel-header">D</th></tr><tr><th class="excel-header">1</th><td>A</td><td>B</td><td>C</td><td>D</td></tr></thead></table>
-                <p><strong>Example:</strong><code>=WRAPCOLS(A1:D1, 2)</code><button class="copy-btn">Copy</button></p>
-                <span class="walkthrough-toggle">Show Walkthrough</span>
-                <div class="walkthrough-content"><p class="mt-2"><strong>Walkthrough:</strong> It takes the single row of letters and wraps it into a 2D array with a height of 2, creating a 2x2 grid.</p></div>
-                <div class="result-section">
-                    <p><strong>Spilled Result (Wrap count 2):</strong></p>
-                    <table><thead><tr><th class="excel-header"></th><th class="excel-header">E</th><th class="excel-header">F</th></tr></thead><tbody><tr><th class="excel-header">1</th><td>A</td><td>C</td></tr><tr><th class="excel-header">2</th><td>B</td><td>D</td></tr></tbody></table>
-                </div>
-            </div>
-            
-            <div class="formula-card" data-category="Aggregation & Generation">
-                <h3 class="text-2xl font-bold text-[#005f73]">19. GROUPBY</h3>
-                <p class="text-gray-600 mt-2">Groups data by specified columns and aggregates it.</p>
-                <table><thead><tr><th class="excel-header"></th><th class="excel-header">A</th><th class="excel-header">B</th></tr><tr><th class="excel-header">1</th><th>Dept</th><th>Salary</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>HR</td><td>75000</td></tr><tr><th class="excel-header">3</th><td>IT</td><td>90000</td></tr><tr><th class="excel-header">4</th><td>HR</td><td>65000</td></tr></tbody></table>
-                <p><strong>Example:</strong><code>=GROUPBY(A2:A4, B2:B4, AVERAGE)</code><button class="copy-btn">Copy</button></p>
-                <span class="walkthrough-toggle">Show Walkthrough</span>
-                <div class="walkthrough-content"><p class="mt-2"><strong>Walkthrough:</strong> It groups the data by unique departments (HR, IT) and calculates the average salary for each, returning a summary table.</p></div>
-                <div class="result-section">
-                    <p><strong>Spilled Result:</strong></p>
-                    <table><thead><tr><th class="excel-header"></th><th class="excel-header">C</th><th class="excel-header">D</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>HR</td><td>70000</td></tr><tr><th class="excel-header">3</th><td>IT</td><td>90000</td></tr></tbody></table>
-                </div>
-            </div>
-            
-            <div class="formula-card" data-category="Aggregation & Generation">
-                <h3 class="text-2xl font-bold text-[#005f73]">20. PIVOTBY</h3>
-                <p class="text-gray-600 mt-2">Creates a summary of data by grouping by rows and columns.</p>
-                <table><thead><tr><th class="excel-header"></th><th class="excel-header">A</th><th class="excel-header">B</th><th class="excel-header">C</th></tr><tr><th class="excel-header">1</th><th>Dept</th><th>Year</th><th>Sales</th></tr></thead><tbody><tr><th class="excel-header">2</th><td>HR</td><td>2024</td><td>100</td></tr><tr><th class="excel-header">3</th><td>IT</td><td>2024</td><td>150</td></tr><tr><th class="excel-header">4</th><td>HR</td><td>2025</td><td>120</td></tr></tbody></table>
-                <p><strong>Example:</strong><code>=PIVOTBY(A2:A4, B2:B4, C2:C4, SUM)</code><button class="copy-btn">Copy</button></p>
-                <span class="walkthrough-toggle">Show Walkthrough</span>
-                <div class="walkthrough-content"><p class="mt-2"><strong>Walkthrough:</strong> It creates a pivot summary with departments as rows, years as columns, and the sum of sales as the values.</p></div>
-                 <div class="result-section">
-                    <p><strong>Spilled Result:</strong></p>
-                    <table><thead><tr><th class="excel-header"></th><th class="excel-header">D</th><th class="excel-header">E</th><th class="excel-header">F</th></tr></thead><tbody><tr><th class="excel-header">2</th><td></td><td>2024</td><td>2025</td></tr><tr><th class="excel-header">3</th><td>HR</td><td>100</td><td>120</td></tr><tr><th class="excel-header">4</th><td>IT</td><td>150</td><td></td></tr></tbody></table>
-                </div>
-            </div>
-
-        </main>
-
-        <footer class="text-center mt-16 pb-8">
-            <p class="text-gray-500">Infographic assembled to demonstrate modern Excel functionalities.</p>
-        </footer>
+<!-- Time Calculator -->
+<div class="card">
+  <div class="card-title">Time Calculator</div>
+  <div class="calc-grid">
+    <div class="calc-field">
+      <label>Clock In</label>
+      <input type="time" id="calc-in" />
     </div>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const searchBar = document.getElementById('search-bar');
-            const formulaGrid = document.getElementById('formula-grid');
-            const formulaCards = formulaGrid.querySelectorAll('.formula-card');
-            const filterBtns = document.querySelectorAll('.filter-btn');
-            const copyBtns = document.querySelectorAll('.copy-btn');
-            const walkthroughToggles = document.querySelectorAll('.walkthrough-toggle');
+    <div class="calc-field">
+      <label>Clock Out</label>
+      <input type="time" id="calc-out" />
+    </div>
+  </div>
+  <div class="calc-extra calc-field">
+    <label>Extra Hours (e.g. 0.5 for 30 min break deduction)</label>
+    <input type="number" id="calc-extra" min="-12" max="12" step="0.25" placeholder="0.0" />
+  </div>
+  <div class="calc-result">
+    <span class="calc-result-label">Total Hours</span>
+    <span class="calc-result-value" id="calc-result">—</span>
+  </div>
+  <div class="calc-actions">
+    <button class="calc-apply-btn" id="calc-apply">Apply to Today</button>
+    <button class="calc-reset-btn" id="calc-reset">Reset</button>
+  </div>
+  <div class="calc-note" id="calc-note"></div>
+</div>
 
-            function filterAndSearch() {
-                const searchTerm = searchBar.value.toLowerCase();
-                const activeCategory = document.querySelector('.filter-btn.active').dataset.category;
+<!-- Summary -->
+<div class="card">
+  <div class="card-title">Weekly Summary</div>
+  <div class="summary-grid">
+    <div class="stat-box">
+      <div class="label">Hours Logged</div>
+      <div class="value total" id="total-hours">0.0</div>
+    </div>
+    <div class="stat-box">
+      <div class="label">Remaining</div>
+      <div class="value remaining" id="remaining-hours">40.0</div>
+    </div>
+    <div class="stat-box">
+      <div class="label">Goal</div>
+      <div class="value goal">40.0</div>
+    </div>
+  </div>
+  <div class="overtime-box" id="overtime-box">
+    <div class="label">Overtime</div>
+    <div class="value" id="overtime-hours">0.0h</div>
+  </div>
+  <div class="progress-label">
+    <span>Progress to 40h</span>
+    <span id="progress-pct">0%</span>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+  </div>
+  <div class="reset-notice" id="reset-notice"></div>
+</div>
 
-                formulaCards.forEach(card => {
-                    const title = card.querySelector('h3').textContent.toLowerCase();
-                    const description = card.querySelector('p').textContent.toLowerCase();
-                    const category = card.dataset.category;
+<!-- Daily Table -->
+<div class="card">
+  <div class="card-title">Daily Log — Mon to Fri</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Day</th>
+        <th>Hours</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="days-tbody"></tbody>
+  </table>
+  <div class="save-row">
+    <span class="save-status" id="save-status">Unsaved changes</span>
+    <button class="save-btn" id="save-btn">&#10003; Save</button>
+  </div>
+</div>
 
-                    const matchesSearch = title.includes(searchTerm) || description.includes(searchTerm);
-                    const matchesCategory = activeCategory === 'all' || category === activeCategory;
+<!-- Weekly Total Box -->
+<div class="card" id="weekly-total-card">
+  <div class="card-title">Weekly Totals</div>
+  <div class="wt-scroll" id="wt-scroll"></div>
+</div>
 
-                    if (matchesSearch && matchesCategory) {
-                        card.style.display = 'flex';
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-            }
+<!-- UX Checklist -->
+<div class="card">
+  <div class="card-title">UX Testing Checklist</div>
+  <div class="checklist-progress">
+    <span id="check-count">0</span> / 5 verified
+  </div>
+  <ul class="checklist" id="checklist">
+    <li data-idx="0">
+      <div class="check-box"><span class="check-icon">✓</span></div>
+      Entering hours updates the weekly total instantly
+    </li>
+    <li data-idx="1">
+      <div class="check-box"><span class="check-icon">✓</span></div>
+      Status indicators change color based on input
+    </li>
+    <li data-idx="2">
+      <div class="check-box"><span class="check-icon">✓</span></div>
+      Progress bar fills correctly toward 40h
+    </li>
+    <li data-idx="3">
+      <div class="check-box"><span class="check-icon">✓</span></div>
+      Remaining hours count down accurately
+    </li>
+    <li data-idx="4">
+      <div class="check-box"><span class="check-icon">✓</span></div>
+      Data persists after closing and reopening the tab
+    </li>
+  </ul>
+</div>
 
-            searchBar.addEventListener('input', filterAndSearch);
+<div class="install-banner" id="install-banner">
+  <div class="install-banner-text">
+    <strong>Add to Home Screen:</strong> tap Chrome's 3-dot menu → "Add to Home screen"
+  </div>
+  <button class="install-dismiss" id="install-dismiss" title="Dismiss">✕</button>
+</div>
 
-            filterBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    filterBtns.forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    filterAndSearch();
-                });
-            });
+<footer>Data saved to localStorage &nbsp;|&nbsp; Resets automatically every Monday</footer>
 
-            copyBtns.forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const codeElement = e.target.previousElementSibling;
-                    const formulaText = codeElement.innerText;
-                    
-                    const tempTextArea = document.createElement('textarea');
-                    tempTextArea.value = formulaText;
-                    document.body.appendChild(tempTextArea);
-                    tempTextArea.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(tempTextArea);
+<script>
+  const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
+  const GOAL = 40;
+  const DAILY_TARGET = 8;
+  const STORAGE_KEY = 'wht_v1';
+  const CHECK_KEY = 'wht_checks_v1';
+  const HISTORY_KEY = 'wht_history_v1';
 
-                    btn.textContent = 'Copied!';
-                    setTimeout(() => {
-                        btn.textContent = 'Copy';
-                    }, 1500);
-                });
-            });
+  function getMonday(d) {
+    const date = new Date(d);
+    const day = date.getDay();
+    const diff = (day === 0 ? -6 : 1 - day);
+    date.setDate(date.getDate() + diff);
+    date.setHours(0,0,0,0);
+    return date;
+  }
 
-            walkthroughToggles.forEach(toggle => {
-                toggle.addEventListener('click', () => {
-                    const content = toggle.nextElementSibling;
-                    const isVisible = content.style.display === 'block';
-                    content.style.display = isVisible ? 'none' : 'block';
-                    toggle.textContent = isVisible ? 'Show Walkthrough' : 'Hide Walkthrough';
-                });
-            });
+  function formatDate(d) {
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
 
-        });
-   </script>
-<nav style="padding:8px 12px;border-bottom:1px solid #e5e7eb;margin-bottom:16px">
-  <a href="./tutor/" style="padding:10px 14px;border:1px solid #333;border-radius:8px;text-decoration:none">
-    Open English Tutor (20 scenarios)
-  </a>
-</nav>
+  function getTodayDayIndex() {
+    const day = new Date().getDay();
+    // 1=Mon,2=Tue,3=Wed,4=Thu,5=Fri
+    if (day >= 1 && day <= 5) return day - 1;
+    return -1;
+  }
+
+  function loadData() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    try { return JSON.parse(raw); } catch { return null; }
+  }
+
+  function saveData(data) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+
+  function loadChecks() {
+    const raw = localStorage.getItem(CHECK_KEY);
+    if (!raw) return [false,false,false,false,false];
+    try { return JSON.parse(raw); } catch { return [false,false,false,false,false]; }
+  }
+
+  function saveChecks(checks) {
+    localStorage.setItem(CHECK_KEY, JSON.stringify(checks));
+  }
+
+  function loadHistory() {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    if (!raw) return [];
+    try { return JSON.parse(raw); } catch { return []; }
+  }
+
+  function saveHistory(history) {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+  }
+
+  function archiveWeek(data) {
+    const total = data.hours.reduce((a,b) => a + b, 0);
+    if (total === 0) return; // don't archive blank weeks
+    const history = loadHistory();
+    // avoid duplicate entries for same weekStart
+    const exists = history.find(h => h.weekStart === data.weekStart);
+    if (!exists) {
+      history.push({ weekStart: data.weekStart, hours: data.hours, total });
+      saveHistory(history);
+    }
+  }
+
+  function initData() {
+    const today = new Date();
+    const monday = getMonday(today);
+    const mondayStr = monday.toISOString().split('T')[0];
+
+    let data = loadData();
+
+    if (!data || data.weekStart !== mondayStr) {
+      if (data && data.weekStart !== mondayStr) {
+        archiveWeek(data); // save previous week to history
+      }
+      data = { weekStart: mondayStr, hours: [0,0,0,0,0] };
+      saveData(data);
+    }
+    return data;
+  }
+
+  function getStatus(hours, dayIdx) {
+    const todayIdx = getTodayDayIndex();
+    if (hours === 0 && dayIdx > todayIdx) return 'future';
+    if (hours === 0) return 'empty';
+    if (hours >= DAILY_TARGET) return 'on-track';
+    if (hours > 0 && hours < DAILY_TARGET) return 'at-risk';
+    return 'empty';
+  }
+
+  function renderStatus(hours, dayIdx) {
+    const s = getStatus(hours, dayIdx);
+    if (s === 'future') return `<span class="status-badge empty">—</span>`;
+    if (s === 'empty') return `<span class="status-badge empty">No entry</span>`;
+    if (s === 'on-track') return `<span class="status-badge on-track">● On Track</span>`;
+    if (s === 'at-risk') return `<span class="status-badge at-risk">● At Risk</span>`;
+    return '';
+  }
+
+  function updateSummary(hours) {
+    const total = hours.reduce((a,b) => a + b, 0);
+    const remaining = Math.max(0, GOAL - total);
+    const overtime = Math.max(0, total - GOAL);
+    const pct = Math.min(100, (total / GOAL) * 100);
+
+    document.getElementById('total-hours').textContent = total.toFixed(1);
+    document.getElementById('remaining-hours').textContent = remaining.toFixed(1);
+    document.getElementById('progress-pct').textContent = Math.round(pct) + '%';
+
+    // Overtime box
+    const otBox = document.getElementById('overtime-box');
+    const otVal = document.getElementById('overtime-hours');
+    if (overtime > 0) {
+      otBox.classList.add('visible');
+      otVal.textContent = '+' + overtime.toFixed(1) + 'h';
+    } else {
+      otBox.classList.remove('visible');
+    }
+
+    const fill = document.getElementById('progress-fill');
+    fill.style.width = pct + '%';
+    if (pct >= 100) fill.classList.add('complete');
+    else fill.classList.remove('complete');
+
+    // Mark save status as unsaved on any change
+    setSaveStatus('unsaved');
+  }
+
+  function buildTable(data) {
+    const tbody = document.getElementById('days-tbody');
+    const todayIdx = getTodayDayIndex();
+    tbody.innerHTML = '';
+
+    // Compute Monday date from stored weekStart
+    const monday = new Date(data.weekStart + 'T00:00:00');
+
+    DAYS.forEach((day, i) => {
+      const isToday = i === todayIdx;
+      const hours = data.hours[i] || 0;
+
+      // Date for this row = monday + i days
+      const rowDate = new Date(monday);
+      rowDate.setDate(monday.getDate() + i);
+      const dateStr = `${rowDate.getMonth()+1}/${rowDate.getDate()}`;
+
+      const tr = document.createElement('tr');
+
+      tr.innerHTML = `
+        <td class="day-name ${isToday ? 'today' : ''}">
+          <div>${day}${isToday ? '<span class="today-badge">TODAY</span>' : ''}</div>
+          <div class="row-date">${dateStr}</div>
+        </td>
+        <td>
+          <input
+            class="hours-input"
+            type="number"
+            min="0"
+            max="24"
+            step="0.5"
+            value="${hours > 0 ? hours : ''}"
+            placeholder="0.0"
+            data-idx="${i}"
+          />
+        </td>
+        <td id="status-${i}">${renderStatus(hours, i)}</td>
+        <td>
+          <button class="clear-btn" data-idx="${i}">Clear</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    // Input events
+    tbody.querySelectorAll('.hours-input').forEach(input => {
+      input.addEventListener('input', (e) => {
+        const idx = parseInt(e.target.dataset.idx);
+        let val = parseFloat(e.target.value);
+        if (isNaN(val) || val < 0) val = 0;
+        if (val > 24) val = 24;
+        data.hours[idx] = val;
+        saveData(data);
+        document.getElementById(`status-${idx}`).innerHTML = renderStatus(val, idx);
+        updateSummary(data.hours);
+        buildWeeklyHistory(data);
+      });
+    });
+
+    // Clear events
+    tbody.querySelectorAll('.clear-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const idx = parseInt(e.target.dataset.idx);
+        data.hours[idx] = 0;
+        saveData(data);
+        const input = tbody.querySelector(`.hours-input[data-idx="${idx}"]`);
+        input.value = '';
+        document.getElementById(`status-${idx}`).innerHTML = renderStatus(0, idx);
+        updateSummary(data.hours);
+        buildWeeklyHistory(data);
+      });
+    });
+  }
+
+  function buildChecklist() {
+    const checks = loadChecks();
+    const items = document.querySelectorAll('#checklist li');
+    let count = 0;
+
+    items.forEach((li, i) => {
+      if (checks[i]) { li.classList.add('checked'); count++; }
+      li.addEventListener('click', () => {
+        checks[i] = !checks[i];
+        li.classList.toggle('checked', checks[i]);
+        saveChecks(checks);
+        const c = checks.filter(Boolean).length;
+        document.getElementById('check-count').textContent = c;
+      });
+    });
+
+    document.getElementById('check-count').textContent = count;
+  }
+
+  function shortDate(d) {
+    return `${d.getMonth()+1}/${d.getDate()}`;
+  }
+
+  function shortDateFull(d) {
+    return `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`;
+  }
+
+  function buildWeekLabel(data) {
+    const monday = new Date(data.weekStart + 'T00:00:00');
+    const friday = new Date(monday);
+    friday.setDate(friday.getDate() + 4);
+
+    document.getElementById('week-label').textContent =
+      `Week ${shortDate(monday)} to ${shortDateFull(friday)}`;
+
+    const today = new Date();
+    const nextMonday = getMonday(today);
+    nextMonday.setDate(nextMonday.getDate() + 7);
+    const nextFriday = new Date(nextMonday);
+    nextFriday.setDate(nextMonday.getDate() + 4);
+    document.getElementById('reset-notice').innerHTML =
+      `Resets on <strong>${shortDate(nextMonday)} to ${shortDateFull(nextFriday)}</strong>`;
+  }
+
+  function renderWtEntry(weekStart, hours, total, isCurrent) {
+    const monday = new Date(weekStart + 'T00:00:00');
+    const friday = new Date(monday);
+    friday.setDate(friday.getDate() + 4);
+    const label = `Week ${monday.getMonth()+1}/${monday.getDate()} to ${friday.getMonth()+1}/${friday.getDate()}/${friday.getFullYear()}`;
+
+    const pct = Math.min(100, (total / GOAL) * 100);
+    const isOver = total > GOAL;
+    const isDone = total >= GOAL;
+
+    const totalClass = isOver ? 'over' : isDone ? 'done' : '';
+    const barClass = isOver ? 'over' : isDone ? 'done' : '';
+    const overtime = isOver ? ` (+${(total - GOAL).toFixed(1)}h OT)` : '';
+
+    return `
+      <div class="wt-entry ${isCurrent ? 'current-week' : ''}">
+        <div class="wt-entry-header">
+          <span class="wt-entry-label">${label}${isCurrent ? '<span class="current-tag">CURRENT</span>' : ''}</span>
+          <span class="wt-entry-total ${totalClass}">${total.toFixed(1)}h${overtime}</span>
+        </div>
+        <div class="wt-bar-wrap">
+          <div class="wt-bar ${barClass}" style="width:${pct}%"></div>
+        </div>
+        <div class="wt-entry-sub">${total.toFixed(1)} of 40h logged</div>
+      </div>
+    `;
+  }
+
+  function buildWeeklyHistory(currentData) {
+    const scroll = document.getElementById('wt-scroll');
+    const history = loadHistory();
+    const currentTotal = currentData.hours.reduce((a,b) => a + b, 0);
+
+    // Build list: current week first, then past weeks newest-first
+    let html = renderWtEntry(currentData.weekStart, currentData.hours, currentTotal, true);
+
+    const sorted = [...history].reverse();
+    sorted.forEach(entry => {
+      html += renderWtEntry(entry.weekStart, entry.hours, entry.total, false);
+    });
+
+    if (history.length === 0 && currentTotal === 0) {
+      html = '<div class="wt-empty">No weeks logged yet. Start entering hours above.</div>';
+    }
+
+    scroll.innerHTML = html;
+  }
+
+  let saveTimeout = null;
+
+  function setSaveStatus(state) {
+    const el = document.getElementById('save-status');
+    const btn = document.getElementById('save-btn');
+    if (state === 'unsaved') {
+      el.textContent = 'Unsaved changes';
+      el.className = 'save-status';
+      btn.classList.remove('saved');
+      btn.textContent = '✓ Save';
+    } else if (state === 'saved') {
+      el.textContent = 'Saved';
+      el.className = 'save-status confirmed';
+      btn.classList.add('saved');
+      btn.textContent = '✓ Saved';
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(() => setSaveStatus('idle'), 3000);
+    } else {
+      el.textContent = 'All changes saved';
+      el.className = 'save-status';
+      btn.classList.remove('saved');
+      btn.textContent = '✓ Save';
+    }
+  }
+
+  function initSaveButton(data) {
+    const btn = document.getElementById('save-btn');
+    setSaveStatus('idle');
+    btn.addEventListener('click', () => {
+      saveData(data);
+      setSaveStatus('saved');
+    });
+  }
+
+  function init() {
+    const data = initData();
+    buildWeekLabel(data);
+    buildTable(data);
+    updateSummary(data.hours);
+    buildChecklist();
+    initSaveButton(data);
+    buildWeeklyHistory(data);
+    initCalculator(data);
+  }
+
+  // ── Time Calculator ────────────────────────────────────────────
+  function calcHours() {
+    const inVal  = document.getElementById('calc-in').value;
+    const outVal = document.getElementById('calc-out').value;
+    const extra  = parseFloat(document.getElementById('calc-extra').value) || 0;
+    const resultEl = document.getElementById('calc-result');
+
+    if (!inVal || !outVal) { resultEl.textContent = '—'; return null; }
+
+    const [inH, inM]   = inVal.split(':').map(Number);
+    const [outH, outM] = outVal.split(':').map(Number);
+
+    let totalMin = (outH * 60 + outM) - (inH * 60 + inM);
+    if (totalMin < 0) totalMin += 24 * 60; // overnight shift
+
+    let totalHours = +(totalMin / 60 + extra).toFixed(2);
+    if (totalHours < 0) totalHours = 0;
+
+    resultEl.textContent = totalHours.toFixed(2) + ' h';
+    return totalHours;
+  }
+
+  function initCalculator(data) {
+    const inEl    = document.getElementById('calc-in');
+    const outEl   = document.getElementById('calc-out');
+    const extraEl = document.getElementById('calc-extra');
+    const applyBtn = document.getElementById('calc-apply');
+    const resetBtn = document.getElementById('calc-reset');
+    const noteEl   = document.getElementById('calc-note');
+
+    // Recalculate on any input change
+    [inEl, outEl, extraEl].forEach(el => el.addEventListener('input', calcHours));
+
+    applyBtn.addEventListener('click', () => {
+      const hours = calcHours();
+      if (hours === null) { noteEl.textContent = 'Set clock in and clock out first.'; return; }
+
+      const todayIdx = getTodayDayIndex();
+      if (todayIdx === -1) { noteEl.textContent = 'Today is not a weekday.'; return; }
+
+      data.hours[todayIdx] = hours;
+      saveData(data);
+
+      // Sync to the daily table input
+      const input = document.querySelector(`.hours-input[data-idx="${todayIdx}"]`);
+      if (input) input.value = hours;
+      document.getElementById(`status-${todayIdx}`).innerHTML = renderStatus(hours, todayIdx);
+      updateSummary(data.hours);
+      buildWeeklyHistory(data);
+
+      noteEl.textContent = `Applied ${hours.toFixed(2)}h to ${DAYS[todayIdx]}.`;
+      noteEl.style.color = 'var(--green)';
+      setTimeout(() => { noteEl.textContent = ''; noteEl.style.color = ''; }, 3000);
+    });
+
+    resetBtn.addEventListener('click', () => {
+      inEl.value = '';
+      outEl.value = '';
+      extraEl.value = '';
+      document.getElementById('calc-result').textContent = '—';
+      noteEl.textContent = '';
+    });
+  }
+
+  // ── Install banner ─────────────────────────────────────────────
+  const banner = document.getElementById('install-banner');
+  const dismissBtn = document.getElementById('install-dismiss');
+
+  const bannerDismissed = localStorage.getItem('wht_banner_dismissed');
+  if (!bannerDismissed) {
+    setTimeout(() => banner.classList.add('visible'), 800);
+  }
+
+  dismissBtn.addEventListener('click', () => {
+    banner.classList.remove('visible');
+    localStorage.setItem('wht_banner_dismissed', '1');
+  });
+
+  init();
+</script>
 </body>
 </html>
-
-
-
